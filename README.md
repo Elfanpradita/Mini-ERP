@@ -123,18 +123,7 @@ docker-compose up -d --build
 
 *Tunggu beberapa saat hingga proses download dan instalasi selesai.*
 
-### 4. Setup Database & Akun Admin
-
-Setelah container berjalan, kita perlu membuat akun Super Admin pertama kali. Jalankan perintah ini di terminal:
-
-```bash
-docker-compose exec web flask create-superadmin
-
-```
-
-*(Jika muncul pesan "Superadmin dibuat: admin", berarti sukses).*
-
-### 5. Akses Aplikasi
+### 4. Akses Aplikasi
 
 Buka browser (Chrome/Edge) dan akses alamat berikut:
 
@@ -180,13 +169,6 @@ Lalu akses di `http://localhost:8080`.
 
 **2. Scan AI Gagal**
 Pastikan `GEMINI_API_KEY` di file `.env` sudah diisi dengan benar dan komputer terkoneksi internet.
-
-**3. Database Error saat pertama kali**
-Coba reset ulang container dengan perintah:
-
-```bash
-docker-compose down -v
-docker-compose up -d --build
 
 ```
 
