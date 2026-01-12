@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold"><i class="bi bi-bar-chart-fill text-primary"></i> Statistik Keuangan</h3>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">&larr; Dashboard</a>
+</div>
+
+{% if data %}
+
+<div class="row mb-4 text-center">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 bg-success text-white">
+            <div class="card-body">
+                <h6 class="opacity-75">Total Pemasukan (All Time)</h6>
+                <h3 class="fw-bold">Rp {{ "{:,.0f}".format(data.total_income) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 bg-danger text-white">
+            <div class="card-body">
+                <h6 class="opacity-75">Total Pengeluaran (All Time)</h6>
+                <h3 class="fw-bold">Rp {{ "{:,.0f}".format(data.total_expense) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 bg-primary text-white">
+            <div class="card-body">
+                <h6 class="opacity-75">Saldo Saat Ini</h6>
+                <h3 class="fw-bold">Rp {{ "{:,.0f}".format(data.current_balance) }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow border-0">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-graph-up"></i> Tren Pemasukan vs Pengeluaran (12 Bulan Terakhir)
+            </div>
+            <div class="card-body">
+                <canvas id="mainChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow border-0">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-bezier2"></i> Tren Profit Bersih
+            </div>
+            <div class="card-body">
+                <canvas id="netChart" height="320"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="alert alert-warning text-center p-5">
+    <h4><i class="bi bi-exclamation-circle"></i> Data Belum Cukup</h4>
+    <p>Silakan input beberapa transaksi pemasukan dan pengeluaran agar grafik bisa muncul.</p>
+    <a href="{{ url_for('finance_manual') }}" class="btn btn-primary">Input Transaksi Sekarang</a>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+{% if data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Data dari Flask/Python
+    const labels = {{ data.labels | tojson }};
+    const incomeData = {{ data.income | tojson }};
+    const expenseData = {{ data.expense | tojson }};
+    const netData = {{ data.net | tojson }};
+
+    // 1. Grafik Utama (Bar Chart)
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Pemasukan',
+                    data: incomeData,
+                    backgroundColor: 'rgba(25, 135, 84, 0.7)', // Hijau
+                    borderColor: 'rgba(25, 135, 84, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Pengeluaran',
+                    data: expenseData,
+                    backgroundColor: 'rgba(220, 53, 69, 0.7)', // Merah
+                    borderColor: 'rgba(220, 53, 69, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // 2. Grafik Net Profit (Line Chart)
+    const ctxNet = document.getElementById('netChart').getContext('2d');
+    new Chart(ctxNet, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Profit/Rugi Bersih',
+                data: netData,
+                borderColor: 'rgba(13, 110, 253, 1)', // Biru
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                fill: true,
+                tension: 0.4 // Garis melengkung halus
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

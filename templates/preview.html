@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-primary">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-robot"></i> Konfirmasi Hasil Scan AI</h4>
+            </div>
+            
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> Silakan periksa kembali data di bawah ini sebelum disimpan.
+                </div>
+
+                <form action="{{ url_for('finance_preview') }}" method="POST">
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tanggal Transaksi</label>
+                        <input type="date" name="tanggal" class="form-control" 
+                               value="{{ data.get('tanggal', '') }}" required>
+                        <div class="form-text">Format: YYYY-MM-DD</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Keterangan / Nama Toko</label>
+                        <input type="text" name="keterangan" class="form-control" 
+                               value="{{ data.get('merchant') or data.get('nama_toko_atau_klien') or data.get('keterangan', '') }}" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Total Nominal (Rp)</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" step="any" name="total" class="form-control fw-bold text-success" 
+                                   value="{{ data.get('total', 0) }}" required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary me-md-2">Batal / Scan Ulang</a>
+                        <button type="submit" class="btn btn-lg btn-primary">
+                            <i class="bi bi-save"></i> Simpan ke Database & Sheets
+                        </button>
+                    </div>
+                </form>
+
+                {% if raw_text %}
+                <hr class="mt-5">
+                <details>
+                    <summary class="text-muted" style="cursor: pointer;">Lihat Teks Mentah dari AI</summary>
+                    <pre class="bg-light p-3 mt-2 border rounded"><code>{{ raw_text }}</code></pre>
+                </details>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

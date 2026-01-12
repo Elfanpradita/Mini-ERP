@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mb-4"><i class="bi bi-shield-lock"></i> Panel Super Admin</h3>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white">Tambah User Baru</div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username" required placeholder="Email/Username">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role Akses</label>
+                        <select class="form-select" name="role" required>
+                            <option value="user">User Staff</option>
+                            <option value="admin">Admin Manager</option>
+                            <option value="superadmin">Super Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100">Buat User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white fw-bold border-bottom">Daftar Pengguna Sistem</div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Username</th>
+                            <th>Role</th>
+                            <th class="text-end pe-3">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td class="ps-3 fw-bold">{{ user.username }}</td>
+                            <td>
+                                {% if user.role == 'superadmin' %}
+                                    <span class="badge bg-danger">Super Admin</span>
+                                {% elif user.role == 'admin' %}
+                                    <span class="badge bg-warning text-dark">Admin</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">User</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-3">
+                                {% if user.id != current_user.id %}
+                                <form method="POST" action="{{ url_for('admin_delete_user', id=user.id) }}" 
+                                      onsubmit="return confirm('Hapus user ini?');">
+                                    <button class="btn btn-outline-danger btn-sm border-0"><i class="bi bi-x-circle"></i> Hapus</button>
+                                </form>
+                                {% else %}
+                                <small class="text-muted">Akun Anda</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

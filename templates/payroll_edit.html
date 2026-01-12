@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0 fw-bold">Edit Slip Gaji</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info py-2">
+                    <small>Mengedit gaji untuk: <strong>{{ p.employee.nama }}</strong> ({{ p.tanggal_gaji.strftime('%d-%m-%Y') }})</small>
+                </div>
+
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Gaji Harian (Rate)</label>
+                            <input type="number" step="any" name="gaji_harian" class="form-control" 
+                                   value="{{ p.gaji_harian }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Jumlah Hari Masuk</label>
+                            <input type="number" step="1" name="gaji_kali" class="form-control" 
+                                   value="{{ p.gaji_kali }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Uang Lembur</label>
+                            <input type="number" step="any" name="lembur" class="form-control" 
+                                   value="{{ p.lembur }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Insentif / Bonus</label>
+                            <input type="number" step="any" name="insentif" class="form-control" 
+                                   value="{{ p.insentif }}">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="{{ url_for('payroll_list') }}" class="btn btn-secondary">Batal</a>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-uppercase mb-0 opacity-75">Sisa Saldo</h6>
+                    <i class="bi bi-wallet2 fs-3"></i>
+                </div>
+                <h2 class="display-6 fw-bold mb-0">Rp {{ "{:,.0f}".format(saldo) }}</h2>
+                <small class="opacity-75">Cashflow Aktual</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100 border-start border-4 border-success">
+            <div class="card-body">
+                <h6 class="text-secondary text-uppercase mb-0">Pemasukan</h6>
+                <h3 class="fw-bold text-dark mb-0">Rp {{ "{:,.0f}".format(total_masuk) }}</h3>
+                <small class="text-success fw-bold"><i class="bi bi-arrow-down-circle"></i> Debet</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100 border-start border-4 border-danger">
+            <div class="card-body">
+                <h6 class="text-secondary text-uppercase mb-0">Pengeluaran</h6>
+                <h3 class="fw-bold text-dark mb-0">Rp {{ "{:,.0f}".format(total_keluar) }}</h3>
+                <small class="text-danger fw-bold"><i class="bi bi-arrow-up-circle"></i> Kredit</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white fw-bold py-3">
+                <i class="bi bi-bar-chart-fill text-primary"></i> Tren Arus Kas (12 Bulan)
+            </div>
+            <div class="card-body">
+                {% if data %}
+                    <canvas id="mainChart" style="max-height: 300px;"></canvas>
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-info-circle fs-1"></i>
+                        <p>Belum ada cukup data untuk menampilkan grafik.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white fw-bold py-3">
+                <i class="bi bi-bezier2 text-success"></i> Profit Bersih
+            </div>
+            <div class="card-body">
+                {% if data %}
+                    <canvas id="netChart" style="max-height: 300px;"></canvas>
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <p>Menunggu data...</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-warning text-dark fw-bold border-bottom-0">
+                <i class="bi bi-lightning-fill"></i> Input Transaksi Baru
+            </div>
+            <div class="card-body d-flex flex-column gap-3">
+                
+                <a href="{{ url_for('finance_manual') }}" class="btn btn-outline-dark py-2 text-start">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-dark text-white rounded-circle p-2 me-3">
+                            <i class="bi bi-keyboard"></i>
+                        </div>
+                        <div>
+                            <span class="d-block fw-bold">Input Manual</span>
+                            <small class="text-muted" style="font-size: 0.8rem;">Ketik nominal sendiri</small>
+                        </div>
+                    </div>
+                </a>
+
+                <hr class="my-1 text-muted">
+
+                <form action="{{ url_for('scan_receipt') }}" method="post" enctype="multipart/form-data">
+                    <label class="form-label fw-bold small text-muted mb-1">Scan Bon (AI)</label>
+                    <div class="input-group">
+                        <input type="file" name="file" class="form-control form-control-sm" accept=".png,.jpg,.jpeg,.pdf" required>
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="bi bi-camera"></i> Scan
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history"></i> Transaksi Terakhir</h6>
+                <a href="{{ url_for('finance_history') }}" class="btn btn-sm btn-link text-decoration-none">Lihat Semua</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light text-secondary small">
+                            <tr>
+                                <th class="ps-4">Tanggal</th>
+                                <th>Keterangan</th>
+                                <th class="text-end">Nominal</th>
+                                <th class="text-center pe-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in transactions %}
+                            <tr>
+                                <td class="ps-4 text-nowrap">{{ t.tanggal.strftime('%d/%m') }}</td>
+                                <td class="text-truncate" style="max-width: 200px;">
+                                    {{ t.keterangan }}
+                                </td>
+                                <td class="text-end fw-bold {{ 'text-success' if t.jenis == 'debet' else 'text-danger' }}">
+                                    Rp {{ "{:,.0f}".format(t.amount) }}
+                                </td>
+                                <td class="text-center pe-4">
+                                    {% if t.jenis == 'debet' %}
+                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill">In</span>
+                                    {% else %}
+                                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill">Out</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-3 text-muted">Belum ada transaksi.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{% if data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = {{ data.labels | tojson }};
+    const incomeData = {{ data.income | tojson }};
+    const expenseData = {{ data.expense | tojson }};
+    const netData = {{ data.net | tojson }};
+
+    // Chart 1: Bar
+    new Chart(document.getElementById('mainChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'Masuk', data: incomeData, backgroundColor: '#198754' },
+                { label: 'Keluar', data: expenseData, backgroundColor: '#dc3545' }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Chart 2: Line
+    new Chart(document.getElementById('netChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{ label: 'Profit', data: netData, borderColor: '#0d6efd', fill: true, backgroundColor: 'rgba(13, 110, 253, 0.1)' }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-keyboard"></i> Input Bon Manual</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tanggal Transaksi</label>
+                        <input type="date" name="tanggal" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Keterangan / Nama Bon</label>
+                        <textarea name="keterangan" class="form-control" rows="2" placeholder="Contoh: Beli Bensin, Uang Makan, atau Terima Pembayaran..." required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold d-block">Jenis Transaksi</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="jenis" id="kredit" value="kredit" checked>
+                            <label class="btn btn-outline-danger" for="kredit">
+                                <i class="bi bi-arrow-up-circle"></i> Pengeluaran (Kredit)
+                            </label>
+
+                            <input type="radio" class="btn-check" name="jenis" id="debet" value="debet">
+                            <label class="btn btn-outline-success" for="debet">
+                                <i class="bi bi-arrow-down-circle"></i> Pemasukan (Debet)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Nominal (Rp)</label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold">Rp</span>
+                            <input type="number" step="any" name="amount" class="form-control fs-5" placeholder="0" required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Simpan Transaksi</button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-light">Batal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto set tanggal hari ini
+    document.querySelector('input[type="date"]').valueAsDate = new Date();
+</script>
+{% endblock %}

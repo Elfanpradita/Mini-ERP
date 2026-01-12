@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0 fw-bold">Edit Transaksi Keuangan</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Tanggal Transaksi</label>
+                        <input type="date" name="tanggal" class="form-control" 
+                               value="{{ t.tanggal }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Keterangan</label>
+                        <input type="text" name="keterangan" class="form-control" 
+                               value="{{ t.keterangan }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nominal (Rp)</label>
+                        <input type="number" step="any" name="amount" class="form-control fw-bold" 
+                               value="{{ t.amount }}" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Jenis Transaksi</label>
+                        <select name="jenis" class="form-select" required>
+                            <option value="kredit" {% if t.jenis == 'kredit' %}selected{% endif %}>Pengeluaran (Kredit)</option>
+                            <option value="debet" {% if t.jenis == 'debet' %}selected{% endif %}>Pemasukan (Debet)</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('finance_history') }}" class="btn btn-secondary">Batal</a>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

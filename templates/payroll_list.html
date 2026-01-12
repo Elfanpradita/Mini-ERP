@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mb-4"><i class="bi bi-wallet2"></i> Riwayat Penggajian</h3>
+
+<div class="card mb-4 shadow-sm border-0 bg-light">
+    <div class="card-body py-3">
+        <form method="GET" action="{{ url_for('payroll_list') }}" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-bold small">Dari Tanggal</label>
+                <input type="date" name="start_date" class="form-control" value="{{ start_date or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold small">Sampai Tanggal</label>
+                <input type="date" name="end_date" class="form-control" value="{{ end_date or '' }}">
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter"></i> Filter</button>
+                    <a href="{{ url_for('payroll_list') }}" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i> Reset</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('print_payroll') }}" target="_blank">
+    
+    <div class="d-flex justify-content-between mb-3">
+        <div>
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-printer"></i> Print Slip Terpilih (PDF)
+            </button>
+        </div>
+        <a href="{{ url_for('payroll_create') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Buat Gaji Baru
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-dark text-white">
+                        <tr>
+                            <th class="ps-3" style="width: 50px;">
+                                <input type="checkbox" id="select-all" class="form-check-input" style="cursor: pointer;">
+                            </th>
+                            <th>Tanggal</th>
+                            <th>Nama Karyawan</th>
+                            <th>Rincian Gaji</th>
+                            <th class="text-end">Total (Rp)</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in payrolls %}
+                        <tr>
+                            <td class="ps-3">
+                                <input type="checkbox" name="payroll_ids[]" value="{{ p.id }}" class="form-check-input payroll-checkbox">
+                            </td>
+                            <td>{{ p.tanggal_gaji.strftime('%d-%m-%Y') }}</td>
+                            <td class="fw-bold">
+                                {{ p.employee.nama }}<br>
+                                <span class="badge bg-secondary fw-normal">{{ p.employee.posisi }}</span>
+                            </td>
+                            <td class="small text-muted">
+                                Gapok: {{ "{:,.0f}".format(p.gaji_harian * p.gaji_kali) }} <br>
+                                Lembur: {{ "{:,.0f}".format(p.lembur) }} <br>
+                                Insentif: {{ "{:,.0f}".format(p.insentif) }}
+                            </td>
+                            <td class="text-end fw-bold text-success fs-6">
+                                {{ "{:,.0f}".format(p.total_gaji) }}
+                            </td>
+                            <td class="text-center">
+                                {% if current_user.role != 'user' %}
+                                    <a href="{{ url_for('payroll_edit', id=p.id) }}" class="btn btn-sm btn-warning" title="Edit Gaji">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                Tidak ada data gaji.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Fitur Select All (Centang Semua)
+    document.getElementById('select-all').addEventListener('click', function(e) {
+        const checkboxes = document.querySelectorAll('.payroll-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = e.target.checked;
+        });
+    });
+</script>
+{% endblock %}
